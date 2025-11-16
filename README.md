@@ -1,0 +1,29 @@
+# OCR Receipts Parser
+
+This is a Python-based Telegram Bot which receives an image of a receipt and extracts useful information it.
+The program uses OCR (Optical Character Recognition) techniques to extract text from an image, which is then parsed, and the important fields are extracted from it.
+
+> It currently only supports receipts in spanish.
+
+## How it works
+
+### OCR
+
+To extract text from an image, I made use of the `easyocr` Python library.
+This library extracts the text from a given image, which can be later parsed.
+
+### Useful information parsing
+
+This is the most complicated part by far. To obtain the information from the text, we look for keywords using regular expressions, and follow different strategies to guess where the useful information might be.
+
+There is room for improvement in the techniques I have used, they might be a little primitive, but I thought that trining a LLM for this was not the way to start. Maybe in the future I will.
+
+## Limitations
+
+There are two main limiting factors, and they are the imperfections in the OCR model and the notable differences between every receipt (each one has its own and unique structure, so parsing information from it is quite hard).
+
+Despite all of these, I managed to capture most of the info of a decent-quality image with no problems.
+
+## Contributions
+
+Contributions are welcome! Please open an issue or submit a pull request if you are willing to colaborate.
