@@ -5,7 +5,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, Con
 from pipeline import TicketPipeline
 from dotenv import load_dotenv
 
-# Cargar variables desde .env
+# 🔑 Cargar variables desde .env
 load_dotenv()  # Busca automáticamente un archivo .env en el directorio actual
 
 # Variables obligatorias
@@ -14,12 +14,10 @@ REQUIRED_ENV_VARS = ["BOT_TOKEN"]
 # Comprobar si existen
 missing_vars = [var for var in REQUIRED_ENV_VARS if os.getenv(var) is None]
 if missing_vars:
-    raise RuntimeError(f"\n ⚠️ Faltan variables de entorno obligatorias: {', '.join(missing_vars)}")
+    raise RuntimeError(f"\n⚠️ Faltan variables de entorno obligatorias: {', '.join(missing_vars)}")
 
-# Variables obligatorias seguras
+# Variables seguras
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-TICKETS_DIR = os.getenv("TICKETS_DIR")
-# 📁 Carpeta donde se guardarán los tickets
 TICKETS_DIR = os.getenv("TICKETS_DIR", "tickets")
 os.makedirs(TICKETS_DIR, exist_ok=True)
 
@@ -32,27 +30,35 @@ pipeline = TicketPipeline()
 # --- Comandos básicos ---
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "👋 ¡Hola! Envíame una foto de tu ticket y procesaré los campos automáticamente.\n"
-        "Puedes editar un campo con /editar campo valor, por ejemplo:\n"
-        "/editar total 7.72"
+        "👋 *¡Hola!*\n\n"
+        "Envíame una foto de tu ticket y procesaré los campos automáticamente.\n\n"
+        "Puedes editar un campo con `/editar campo valor`, por ejemplo:\n"
+        "> /editar total 5.15",
+        parse_mode="Markdown"
     )
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
-        "📸 Solo tienes que enviarme una foto del ticket y te devolveré los campos extraídos."
+        "📸 Envía una foto de tu ticket y te devolveré los campos extraídos.\n\n"
+        "📝 Para modificar algún campo puedes usar:\n"
+        "`/editar campo valor`",
+        parse_mode="Markdown"
     )
 
 # --- Función para crear texto bonito con emojis ---
 def format_ticket(ticket: dict) -> str:
-    return (
-        f"🛒 **Ticket procesado** 🛒\n\n"
-        f"🏬 Establecimiento: {str(ticket.get('establecimiento') or '')}\n"
-        f"🆔 CIF/NIF: {str(ticket.get('cif') or 'No encontrado')}\n"
-        f"📅 Fecha: {str(ticket.get('fecha') or 'No encontrada')}\n"
-        f"💰 Total: {str(ticket.get('total') or 'No encontrado')}\n"
-        f"💱 Divisa: {str(ticket.get('divisa') or 'No encontrada')}\n"
-        f"💳 Método de pago: {str(ticket.get('metodo_pago') or 'No encontrado')}"
+    result = (
+        f"🛒 *Ticket procesado* 🛒\n\n"
+        f"🏬 *Establecimiento:* {ticket.get('establecimiento') or '_No encontrado_'}\n"
+        f"🆔 *CIF/NIF:* {ticket.get('cif') or '_No encontrado_'}\n"
+        f"📅 *Fecha:* {ticket.get('fecha') or '_No encontrada_'}\n"
+        f"💰 *Total:* {ticket.get('total') or '_No encontrado_'}\n"
+        f"💱 *Divisa:* {ticket.get('divisa') or '_No encontrada_'}\n"
+        f"💳 *Método de pago:* {ticket.get('metodo_pago') or '_No encontrado_'}\n\n"
+        f"📝 _Si algún campo es incorrecto, puedes editarlo con_ `/editar campo valor`"
     )
+    print(result)
+    return result
 
 # --- Manejo de imágenes ---
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -76,13 +82,12 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f"⚠️ Error procesando la imagen: {e}")
 
-
 # --- Comando /editar ---
 async def editar(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         args = context.args
         if len(args) < 2:
-            await update.message.reply_text("Uso: /editar campo valor")
+            await update.message.reply_text("Uso: `/editar campo valor`", parse_mode="Markdown")
             return
 
         campo = args[0].lower()
@@ -90,29 +95,26 @@ async def editar(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ticket = user_tickets.get(update.message.from_user.id)
 
         if not ticket:
-            await update.message.reply_text("No hay ticket procesado para editar.")
+            await update.message.reply_text("_No hay ticket procesado para editar._", parse_mode="Markdown")
             return
 
         if campo not in ticket:
-            await update.message.reply_text(f"Campo '{campo}' no existe.")
+            await update.message.reply_text(f"_Campo '{campo}' no existe._", parse_mode="Markdown")
             return
 
         ticket[campo] = valor
 
         # Mostrar ticket actualizado
         await update.message.reply_text(
-            f"✅ Campo '{campo}' actualizado a '{valor}'.\n\n{format_ticket(ticket)}",
+            f"✅ Campo '*{campo}*' actualizado a '*{valor}*'.\n\n{format_ticket(ticket)}",
             parse_mode="Markdown"
         )
 
     except Exception as e:
         await update.message.reply_text(f"Error: {e}")
 
-
 # --- Main ---
 if __name__ == "__main__":
-    from telegram.ext import ApplicationBuilder
-
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
@@ -122,4 +124,3 @@ if __name__ == "__main__":
 
     print("🤖 Bot en marcha... esperando fotos de tickets.")
     app.run_polling()
-

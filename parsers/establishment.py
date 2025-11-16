@@ -9,8 +9,8 @@ PALABRAS_ESTABLECIMIENTO = [
 
 EXCLUDE_KEYWORDS = [
     "VISA","MASTERCARD","MAESTRO","CASH","DEBITO","CRÉDITO","CONTACTLESS",
-    "CARITAS","BIENVENIDO","GRACIAS","BIZUM","AYUDA","EJEMPLAR","CLIENTE","COMPRA"
-]
+    "CARITAS","BIENVENIDO","GRACIAS","BIZUM","AYUDA","EJEMPLAR","CLIENTE","COMPRA",
+    "C/", "CALLE", "AVDA", "AVENIDA", "AVD"]
 
 def parse_establishment(lines):
     # 1️⃣ Buscar líneas que contengan palabras de establecimiento
