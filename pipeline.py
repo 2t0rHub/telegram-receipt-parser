@@ -1,3 +1,4 @@
+from parsers.iva import parse_iva
 from preprocess.filters import preprocesar_imagen
 from ocr.easyocr_engine import EasyOCREngine
 from ocr.segmenters import recorte_superior
@@ -37,6 +38,7 @@ class TicketPipeline:
         fecha = parse_fecha(todas_las_lineas)
         total = parse_total(todas_las_lineas)
         metodo_pago = parse_payment(todas_las_lineas)
+        iva = parse_iva(todas_las_lineas)
         divisa = parse_currency(todas_las_lineas)  # <-- nuevo
 
         # --- Construir diccionario antes del return ---
@@ -45,6 +47,7 @@ class TicketPipeline:
             "cif": cif,
             "fecha": fecha,
             "total": total,
+            "iva": iva,
             "divisa": divisa,          # <-- añadido
             "metodo_pago": metodo_pago
         }

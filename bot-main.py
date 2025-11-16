@@ -54,6 +54,7 @@ def format_ticket(ticket: dict) -> str:
         f"📅 *Fecha:* {ticket.get('fecha') or '_No encontrada_'}\n"
         f"💰 *Total:* {ticket.get('total') or '_No encontrado_'}\n"
         f"💱 *Divisa:* {ticket.get('divisa') or '_No encontrada_'}\n"
+        f"💲 *IVA (%):* {ticket.get('iva') or '_No encontrado_'}\n"
         f"💳 *Método de pago:* {ticket.get('metodo_pago') or '_No encontrado_'}\n\n"
         f"📝 _Si algún campo es incorrecto, puedes editarlo con_ `/editar campo valor`"
     )
