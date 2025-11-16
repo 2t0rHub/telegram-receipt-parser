@@ -1,0 +1,7 @@
+.venv/
+deprecated/
+__pycache__
+*.pyc
+tickets/
+
+.env
