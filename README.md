@@ -16,13 +16,27 @@ cd ocr-receipt-parser
 
 # Create a virtual environment
 python -m venv .venv
+```
 
+#### Running locally
+
+```bash
 # Activate the virtual environment
 source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate     # Windows
 
 #  Install dependencies
 pip install -r requirements.txt
+```
+
+#### Running as a Docker container
+
+```bash
+# Build the Docker image
+docker build -t receipt-bot .
+
+# Run it
+docker run --name receipt-bot receipt-bot
 ```
 
 ### Environment variables
