@@ -5,38 +5,14 @@ The program uses OCR (Optical Character Recognition) techniques to extract text 
 
 > It currently only supports receipts in spanish.
 
-## Instalation
+## ⬇️ Instalation
 
-### Installing it
+First, clone the repository:
 
 ```bash
 # Clone the repository
 git clone https://github.com/2t0rHub/ocr-receipt-parser.git
 cd ocr-receipt-parser
-
-# Create a virtual environment
-python -m venv .venv
-```
-
-#### Running locally
-
-```bash
-# Activate the virtual environment
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-
-#  Install dependencies
-pip install -r requirements.txt
-```
-
-#### Running as a Docker container
-
-```bash
-# Build the Docker image
-docker build -t receipt-bot .
-
-# Run it
-docker run --name receipt-bot receipt-bot
 ```
 
 ### Environment variables
@@ -49,7 +25,37 @@ Content example:
 TELEGRAM_BOT_KEY=1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ
 ```
 
-## How it works
+---
+
+### Alternatives
+
+#### 1. 💻 Running locally
+
+I strongly recommend creating a local environment for the dependencies.
+
+```bash
+
+# Create a virtual environment
+python -m venv .venv
+# Activate the virtual environment
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+
+#  Install dependencies
+pip install -r requirements.txt
+```
+
+#### 2. 🐋 Running as a Docker container
+
+```bash
+# Build the Docker image
+docker build -t receipt-bot .
+
+# Run it
+docker run --name receipt-bot receipt-bot
+```
+
+## ⚙️How it works
 
 ### OCR
 
