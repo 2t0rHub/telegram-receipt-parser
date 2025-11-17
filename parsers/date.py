@@ -65,10 +65,33 @@ def _validated_date(day, month, year):
         return None
 
 def parse_fecha(lines):
-    """Detecta cualquier tipo de fecha: numérica o con meses escritos"""
+    """Detecta fechas dando prioridad a líneas con palabra 'fecha'"""
     texto = " ".join(str(line) for line in lines if line)
 
-    # 1️⃣ Fechas con mes escrito (ej: 16/ mar / 2025, 16-Mar-25, 16 . March . 2025)
+    # 1️⃣ Buscar líneas con 'FECHA'
+    for linea in lines:
+        if fuzzy_in("FECHA", str(linea), umbral=70):
+            line_text = str(linea)
+            # Intentar primero meses escritos
+            text_pattern = r"(\d{1,2})\s*[./\-]?\s*([a-záéíóúñ]{3,})\s*[./\-]?\s*(\d{2,4})"
+            match = re.search(text_pattern, line_text, re.IGNORECASE)
+            if match:
+                day, month, year = match.groups()
+                fecha = _validated_date(day, month, year)
+                if fecha:
+                    return fecha
+
+            # Intentar numérico
+            for pat in PATRONES_NUMERICOS:
+                match = re.search(pat, line_text)
+                if match:
+                    groups = match.groupdict()
+                    fecha = _validated_date(groups['d'], groups['m'], groups['y'])
+                    if fecha:
+                        return fecha
+
+    # 2️⃣ Si no hay línea con 'FECHA', buscar en todo el texto
+    # Fechas con mes escrito
     text_pattern = r"(\d{1,2})\s*[./\-]?\s*([a-záéíóúñ]{3,})\s*[./\-]?\s*(\d{2,4})"
     match = re.search(text_pattern, texto, re.IGNORECASE)
     if match:
@@ -77,7 +100,7 @@ def parse_fecha(lines):
         if fecha:
             return fecha
 
-    # 2️⃣ Fechas numéricas
+    # Fechas numéricas
     for pat in PATRONES_NUMERICOS:
         match = re.search(pat, texto)
         if match:

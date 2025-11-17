@@ -1,0 +1,9 @@
+.venv/
+venv/
+__pycache__/
+*.pyc
+deprecated/
+tests/
+*.log
+.git/
+.DS_Store

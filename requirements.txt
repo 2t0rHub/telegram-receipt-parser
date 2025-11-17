@@ -4,7 +4,6 @@ python-dotenv
 
 # Trabajos con imágenes
 opencv-python
-pillow
 numpy
 
 # Reconocimiento de Tickets
