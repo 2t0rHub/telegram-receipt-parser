@@ -123,5 +123,5 @@ if __name__ == "__main__":
     app.add_handler(CommandHandler("editar", editar))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
 
-    print("🤖 Bot en marcha... esperando fotos de tickets.")
+    print("\n🤖 Bot en marcha... esperando fotos de tickets.")
     app.run_polling()
