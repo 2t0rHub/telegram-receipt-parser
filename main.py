@@ -107,7 +107,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Usamos el nuevo sistema de logging para tickets
         # Esto guardará el resultado en 'processed.log' y el texto OCR en 'ocr.log'
         log_ticket_success(user, resultado, ocr_text=ocr_text)
-
+        log.info(f"Photo processed for user {user_info}.")
         # Mostrar resultado
         await update.message.reply_text(format_ticket(resultado), parse_mode="Markdown")
 
@@ -133,11 +133,14 @@ async def editar(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ticket = user_tickets.get(update.effective_user.id)
 
         if not ticket:
+            log.info(f"User {user_info} tried /editar without a valid receipt.")
             await update.message.reply_text("_No hay ticket procesado para editar._", parse_mode="Markdown")
             return
 
         if campo not in ticket:
-            await update.message.reply_text(f"_Campo '{campo}' no existe._", parse_mode="Markdown")
+            log.info(f"User {user_info} tried /editar with an invalid field: {campo}")
+            await update.message.reply_text(f"_❌ Campo '{campo}' no existe._", parse_mode="Markdown")
+            await update.message.reply_text(f"ℹ️ Los campos disponibles son:\n{', '.join(ticket.keys())}.")
             return
 
         ticket[campo] = valor
