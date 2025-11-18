@@ -17,21 +17,26 @@ os.makedirs(TICKETS_LOGS_DIR, exist_ok=True)
 class JsonFormatter(logging.Formatter):
     """Formatea los registros como una cadena JSON por línea."""
     def format(self, record):
-        # El mensaje ya viene como un diccionario
         log_record = record.msg
-        log_record['timestamp'] = datetime.utcfromtimestamp(record.created).isoformat() + 'Z'
+        log_record['timestamp'] = datetime.utcfromtimestamp(record.created).strftime("%Y-%m-%dT%H:%M:%SZ")
         return json.dumps(log_record, ensure_ascii=False)
 
 # --- Función Fábrica para Loggers ---
-def create_logger(name, log_file, level=logging.INFO, formatter=None, is_json=False):
-    """Crea y configura un logger con rotación diaria."""
-    handler = TimedRotatingFileHandler(log_file, when="midnight", interval=1, backupCount=BACKUP_COUNT, encoding='utf-8')
+def create_logger(name, log_file, level=logging.INFO, formatter=None, is_json=False, rotate=False):
+    """Crea y configura un logger.
+    Si rotate=True, se hace rotación diaria (solo para bot.log)."""
+    if rotate:
+        handler = TimedRotatingFileHandler(
+            log_file, when="midnight", interval=1, backupCount=BACKUP_COUNT, encoding='utf-8'
+        )
+    else:
+        handler = logging.FileHandler(log_file, encoding='utf-8')
     
     if is_json:
         handler.setFormatter(JsonFormatter())
     elif formatter:
         handler.setFormatter(formatter)
-
+    
     logger = logging.getLogger(name)
     logger.setLevel(level)
     logger.propagate = False
@@ -39,44 +44,50 @@ def create_logger(name, log_file, level=logging.INFO, formatter=None, is_json=Fa
         logger.addHandler(handler)
     return logger
 
+# --- Fecha de hoy para logs diarios ---
+today = datetime.now().strftime("%d-%m-%Y")
+
 # --- Creación de los Loggers Específicos ---
 
-# 1. Logger General (bot.log)
+# 1. Logger General (bot_DD-MM-YYYY.log) con rotación diaria
 general_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+    '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%d-%m-%Y %H:%M:%S'
 )
+general_log_file = os.path.join(LOGS_DIR, f'bot_{today}.log')
 log = create_logger(
     'general_bot',
-    os.path.join(LOGS_DIR, 'bot.log'),
-    formatter=general_formatter
+    general_log_file,
+    formatter=general_formatter,
+    rotate=True
 )
 
-# 2. Logger de Tickets Procesados (tickets/processed_YYYY-MM-DD.log)
+# 2. Logger de Tickets Procesados (processed_DD-MM-YYYY.log)
+processed_log_file = os.path.join(TICKETS_LOGS_DIR, f"processed_{today}.log")
 success_logger = create_logger(
     'ticket_success',
-    os.path.join(TICKETS_LOGS_DIR, 'processed.log'),
+    processed_log_file,
     is_json=True
 )
 
-# 3. Logger de OCR (tickets/ocr_YYYY-MM-DD.log)
+# 3. Logger de OCR (ocr_DD-MM-YYYY.log)
+ocr_log_file = os.path.join(TICKETS_LOGS_DIR, f"ocr_{today}.log")
 ocr_logger = create_logger(
     'ticket_ocr',
-    os.path.join(TICKETS_LOGS_DIR, 'ocr.log'),
+    ocr_log_file,
     is_json=True
 )
 
-# 4. Logger de Errores (tickets/errors_YYYY-MM-DD.log)
+# 4. Logger de Errores (errors_DD-MM-YYYY.log)
+error_log_file = os.path.join(TICKETS_LOGS_DIR, f"errors_{today}.log")
 error_logger = create_logger(
     'ticket_error',
-    os.path.join(TICKETS_LOGS_DIR, 'errors.log'),
+    error_log_file,
     is_json=True
 )
 
 # --- Funciones Auxiliares de Logging ---
-
 def _get_user_details(user):
-    """Extrae un diccionario con los detalles del usuario."""
     return {
         "user_id": user.id,
         "username": user.username,
@@ -84,12 +95,9 @@ def _get_user_details(user):
     }
 
 def log_ticket_success(user, ticket_result, ocr_text=None):
-    """Registra un ticket procesado correctamente y su OCR."""
     ticket_id = str(uuid.uuid4())
     user_details = _get_user_details(user)
 
-    # Log del ticket procesado
-    # Esta entrada contiene el resultado del parseo
     success_log_entry = {
         "ticket_id": ticket_id,
         "user": user_details,
@@ -98,8 +106,6 @@ def log_ticket_success(user, ticket_result, ocr_text=None):
     }
     success_logger.info(success_log_entry)
 
-    # Log del texto OCR si está disponible.
-    # Esta entrada contiene el texto crudo extraído por el OCR.
     if ocr_text:
         ocr_log_entry = {
             "ticket_id": ticket_id,
@@ -109,8 +115,6 @@ def log_ticket_success(user, ticket_result, ocr_text=None):
         ocr_logger.info(ocr_log_entry)
 
 def log_ticket_error(user, error_message, raw_data=None):
-    """Registra un fallo en el procesamiento de un ticket."""
-    # Se genera un ID único para cada error para poder rastrearlo
     ticket_id = str(uuid.uuid4())
     user_details = _get_user_details(user)
     
