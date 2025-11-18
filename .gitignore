@@ -3,5 +3,5 @@ deprecated/
 __pycache__
 *.pyc
 tickets/
-
+logs/
 .env

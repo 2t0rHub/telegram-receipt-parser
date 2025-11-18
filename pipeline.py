@@ -52,7 +52,6 @@ class TicketPipeline:
             "metodo_pago": metodo_pago
         }
 
-        # --- Debug ---
-        print(todas_las_lineas)
-
-        return resultado
+        # Devuelve el resultado procesado y el texto crudo del OCR para logging
+        # `todas_las_lineas` es la lista de strings extraída por el OCR
+        return resultado, todas_las_lineas

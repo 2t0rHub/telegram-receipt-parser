@@ -21,8 +21,11 @@ COPY requirements.txt .
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Create logs directory
+RUN mkdir logs
+
 # Copy the rest of the project
 COPY . .
 
 # Run the bot
-CMD ["python", "bot_main.py"]
+CMD ["python", "main.py"]

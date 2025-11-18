@@ -4,7 +4,13 @@ python-dotenv
 
 # Trabajos con imágenes
 opencv-python
-numpy
+numpy<2.0
+
+# PyTorch CPU-only (para easyocr)
+torch==2.3.1+cpu
+torchvision==0.18.1+cpu
+torchaudio==2.3.1+cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
 
 # Reconocimiento de Tickets
 easyocr
