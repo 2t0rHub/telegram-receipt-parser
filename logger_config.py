@@ -11,7 +11,10 @@ TICKETS_LOGS_DIR = os.path.join(LOGS_DIR, 'tickets')
 BACKUP_COUNT = 7  # Días de logs a conservar
 
 # --- Creación de Directorios ---
-os.makedirs(TICKETS_LOGS_DIR, exist_ok=True)
+os.makedirs(os.path.join(TICKETS_LOGS_DIR, 'processed'), exist_ok=True)
+os.makedirs(os.path.join(TICKETS_LOGS_DIR, 'ocr'), exist_ok=True)
+os.makedirs(os.path.join(TICKETS_LOGS_DIR, 'errors'), exist_ok=True)
+
 
 # --- Formateador JSON ---
 class JsonFormatter(logging.Formatter):
@@ -63,7 +66,7 @@ log = create_logger(
 )
 
 # 2. Logger de Tickets Procesados (processed_DD-MM-YYYY.log)
-processed_log_file = os.path.join(TICKETS_LOGS_DIR, f"processed_{today}.log")
+processed_log_file = os.path.join(TICKETS_LOGS_DIR, "processed", f"processed_{today}.log")
 success_logger = create_logger(
     'ticket_success',
     processed_log_file,
@@ -71,7 +74,7 @@ success_logger = create_logger(
 )
 
 # 3. Logger de OCR (ocr_DD-MM-YYYY.log)
-ocr_log_file = os.path.join(TICKETS_LOGS_DIR, f"ocr_{today}.log")
+ocr_log_file = os.path.join(TICKETS_LOGS_DIR, "ocr", f"ocr_{today}.log")
 ocr_logger = create_logger(
     'ticket_ocr',
     ocr_log_file,
@@ -79,7 +82,7 @@ ocr_logger = create_logger(
 )
 
 # 4. Logger de Errores (errors_DD-MM-YYYY.log)
-error_log_file = os.path.join(TICKETS_LOGS_DIR, f"errors_{today}.log")
+error_log_file = os.path.join(TICKETS_LOGS_DIR, "errors", f"errors_{today}.log")
 error_logger = create_logger(
     'ticket_error',
     error_log_file,
